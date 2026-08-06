@@ -60,7 +60,7 @@ Progress is displayed in real time using the same format as the Statistics Maint
 Example:
 
 ```text
-Starting: (1 of 64) ALTER INDEX [Travel_Cruise].[SailingPriceDetail] [IX_SailingPriceDetail_Supplier]
+Starting: (1 of 64) ALTER INDEX [dbo].[Persons] [IX_Persons_FirstName_LastName]
 REBUILD PARTITION = 8
 WITH (SORT_IN_TEMPDB = ON, MAXDOP = 2);
 
