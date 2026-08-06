@@ -18,7 +18,7 @@ BEGIN
     DROP TABLE IF EXISTS #ProcessedIndexes;
 
     DECLARE
-          @action BIT = 1
+          @action BIT = 0
         , @showResults BIT = 1
         , @tableName SYSNAME = NULL -- NULL for all tables, or 'TableName' / 'Schema.TableName'
         , @scanMode VARCHAR(10) = 'LIMITED' -- LIMITED, SAMPLED, or DETAILED
