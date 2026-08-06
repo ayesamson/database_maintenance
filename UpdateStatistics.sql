@@ -19,7 +19,7 @@ BEGIN
         @totalCount INT = 0,
         @sqlCommand VARCHAR(1000),
         @tableName SYSNAME = NULL, --'Member.MemberAccount';
-        @showResults BIT = 0;
+        @showResults BIT = 1;
 
     DECLARE 
           @min_row_count_for_consideration bigint = 10000
