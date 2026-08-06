@@ -28,8 +28,6 @@ BEGIN
         , @urgent_change_pct decimal(9,4) = 0.20   -- 20%
         , @high_change_pct   decimal(9,4) = 0.10   -- 10%
         , @medium_change_pct decimal(9,4) = 0.05   -- 5%
-        , @stale_days_high int = 14
-        , @stale_days_medium int = 7
         , @fullscan_row_limit bigint = 1000000
         , @small_table_fullscan_limit bigint = 500000
         , @sample_very_large_pct int = 10
@@ -126,10 +124,8 @@ BEGIN
                      OR modification_pct_of_table >= @urgent_change_pct
                     THEN 'HIGH'
                 WHEN modification_pct_of_table >= @high_change_pct
-                     OR days_since_update >= @stale_days_high
                     THEN 'MEDIUM'
                 WHEN modification_pct_of_table >= @medium_change_pct
-                     OR days_since_update >= @stale_days_medium
                     THEN 'LOW'
                 ELSE 'WATCH'
               END AS action_bucket
