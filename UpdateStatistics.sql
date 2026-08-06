@@ -18,8 +18,8 @@ BEGIN
         @loopCount INT = 1,
         @totalCount INT = 0,
         @sqlCommand VARCHAR(1000),
-        @tableName SYSNAME = NULL, -- NULL for all tables or for a specific table: 'Schema.TableName',
-        @showResults BIT = 1;
+        @tableName SYSNAME = NULL, --'Member.MemberAccount';
+        @showResults BIT = 0;
 
     DECLARE 
           @min_row_count_for_consideration bigint = 10000
@@ -28,6 +28,8 @@ BEGIN
         , @urgent_change_pct decimal(9,4) = 0.20   -- 20%
         , @high_change_pct   decimal(9,4) = 0.10   -- 10%
         , @medium_change_pct decimal(9,4) = 0.05   -- 5%
+        , @stale_days_high int = 14
+        , @stale_days_medium int = 7
         , @fullscan_row_limit bigint = 1000000
         , @small_table_fullscan_limit bigint = 500000
         , @sample_very_large_pct int = 10
@@ -124,8 +126,10 @@ BEGIN
                      OR modification_pct_of_table >= @urgent_change_pct
                     THEN 'HIGH'
                 WHEN modification_pct_of_table >= @high_change_pct
+                     OR days_since_update >= @stale_days_high
                     THEN 'MEDIUM'
                 WHEN modification_pct_of_table >= @medium_change_pct
+                     OR days_since_update >= @stale_days_medium
                     THEN 'LOW'
                 ELSE 'WATCH'
               END AS action_bucket
@@ -143,6 +147,12 @@ BEGIN
                        WHEN modification_pct_of_table >= 0.20 THEN 35
                        WHEN modification_pct_of_table >= 0.10 THEN 25
                        WHEN modification_pct_of_table >= 0.05 THEN 15
+                       ELSE 0
+                   END)
+                + (CASE
+                       WHEN days_since_update >= 30 THEN 20
+                       WHEN days_since_update >= 14 THEN 12
+                       WHEN days_since_update >= 7  THEN 6
                        ELSE 0
                    END)
                 + (CASE
@@ -186,12 +196,11 @@ BEGIN
               END AS recommended_sampling
             , CASE
                 WHEN s.table_row_count <= @small_table_fullscan_limit
-                     AND s.action_bucket IN ('URGENT','HIGH','MEDIUM','LOW')
                     THEN
                         'UPDATE STATISTICS '
                         + QUOTENAME(s.schema_name) + '.' + QUOTENAME(s.table_name)
-                        + ' WITH FULLSCAN;'
-                WHEN s.action_bucket IN ('URGENT','HIGH','MEDIUM','LOW')
+                        + ' WITH FULLSCAN'
+                WHEN s.action_bucket IN ('URGENT','HIGH','MEDIUM')
                     THEN
                         'UPDATE STATISTICS '
                         + QUOTENAME(s.schema_name) + '.' + QUOTENAME(s.table_name)
@@ -217,7 +226,7 @@ BEGIN
                 ELSE NULL
               END AS generated_update_command
         FROM scored AS s
-        WHERE s.action_bucket IN ('URGENT','HIGH','MEDIUM','LOW')
+        WHERE s.action_bucket <> 'IGNORE_SMALL_LOW_CHANGE'
     ),
     deduped AS
     (
@@ -462,7 +471,10 @@ BEGIN
         END
         ELSE
             BEGIN
-                RAISERROR(@sqlCommand, 0, 1) WITH NOWAIT;
+                IF (@action = 1)
+                    BEGIN
+                        RAISERROR(@sqlCommand, 0, 1) WITH NOWAIT;
+                    END
             END
 
         SET @loopCount = @loopCount + 1;
