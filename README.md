@@ -3,8 +3,8 @@
 
 | Script | Description |
 |---------|-------------|
-| StatisticsMaintenance.sql | Intelligent statistics maintenance using modification counters, table size, and adaptive sampling. |
 | IndexMaintenance.sql | Intelligent index maintenance using fragmentation analysis, partition awareness, and adaptive rebuild/reorganize decisions. |
+| StatisticsMaintenance.sql | Intelligent statistics maintenance using modification counters, table size, and adaptive sampling. |
 
 ## Recommended Execution Order
 
