@@ -19,8 +19,8 @@ When an index is rebuilt, SQL Server automatically updates statistics associated
 
 ## Documentation
 
-- [StatisticsMaintenance.md](StatisticsMaintenance.md)
 - [IndexMaintenance.md](IndexMaintenance.md)
+- [StatisticsMaintenance.md](StatisticsMaintenance.md)
 
 ## License
 
