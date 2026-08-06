@@ -1,4 +1,27 @@
 # SQL Server/Azure SQLDB Database Maintenance
-Repository of utility scripts
+## Scripts
 
-It is recommended to defragment the indexes first [IndexMaintenance.sql](https://github.com/ayesamson/database_maintenance/blob/main/IndexMaintenance.sql). When an index is rebuilt, SQL Server automatically updates the statistics associated with that index using a full scan. Afterward, run UPDATE STATISTICS [StatisticsMaintenance.sql](https://github.com/ayesamson/database_maintenance/blob/main/StatisticsMaintenance.sql) to refresh any remaining statistics that were not updated by the index rebuild, such as auto-created statistics (for example, _WA_Sys_00000003_4B7734FF) or user-created statistics that are not associated with an index.
+| Script | Description |
+|---------|-------------|
+| StatisticsMaintenance.sql | Intelligent statistics maintenance using modification counters, table size, and adaptive sampling. |
+| IndexMaintenance.sql | Intelligent index maintenance using fragmentation analysis, partition awareness, and adaptive rebuild/reorganize decisions. |
+
+## Recommended Execution Order
+
+1. Run **IndexMaintenance.sql**
+2. Run **StatisticsMaintenance.sql**
+
+When an index is rebuilt, SQL Server automatically updates statistics associated with that index using a full scan. Running StatisticsMaintenance afterward refreshes remaining statistics that were not updated by the index rebuild, including:
+
+- Auto-created statistics (`_WA_Sys...`)
+- User-created statistics
+- Statistics not associated with an index
+
+## Documentation
+
+- [StatisticsMaintenance.md](StatisticsMaintenance.md)
+- [IndexMaintenance.md](IndexMaintenance.md)
+
+## License
+
+MIT
